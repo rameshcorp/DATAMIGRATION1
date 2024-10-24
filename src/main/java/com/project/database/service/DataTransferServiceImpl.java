@@ -71,21 +71,27 @@ public class DataTransferServiceImpl implements DataTransferService {
 //    int rowsAffectedNextPmDate = jdbcTemplate.update(sqlUpdateNextPmDate);
 //    System.out.println("Rows affected in nextpmdate update: " + rowsAffectedNextPmDate); JOIN
 
-            String sql = "UPDATE vms_equipment_parameter vep " +
-                    "JOIN equipment2 eq2 " +
-                    "ON TRIM(LEADING '0' FROM vep.eqid) = TRIM(LEADING '0' FROM eq2.equipment_id) " +
-                    "OR vep.eqid IN ('100521062099', '103020558642','110721091791','110721091792'," +
-                    "'110721091796','110721091797','1108211090227','120221101359','120221102278'," +
-                    "'120521106564','120524106503','130421030569','13100217002767','140621080288'," +
-                    "'140621080296','141221080367','141221080392','170921114118','170921114119'," +
-                    "'170921114120','171121119014','171121119015','171121119016','171221114070'," +
-                    "'171221114072','171221114074','180832013961','180832013964','180832013967') " + // Fixed misplaced single quotes
-                    "SET vep.equipment_type_id = eq2.equipment_type_id " +
-                    "WHERE vep.IsActive = 1";
+//            String sql = "UPDATE vms_equipment_parameter vep " +
+//                    "JOIN equipment2 eq2 " +
+//                    "ON TRIM(LEADING '0' FROM vep.eqid) = TRIM(LEADING '0' FROM eq2.equipment_id) " +
+//                    "OR vep.eqid IN ('100521062099', '103020558642','110721091791','110721091792'," +
+//                    "'110721091796','110721091797','1108211090227','120221101359','120221102278'," +
+//                    "'120521106564','120524106503','130421030569','13100217002767','140621080288'," +
+//                    "'140621080296','141221080367','141221080392','170921114118','170921114119'," +
+//                    "'170921114120','171121119014','171121119015','171121119016','171221114070'," +
+//                    "'171221114072','171221114074','180832013961','180832013964','180832013967') " + // Fixed misplaced single quotes
+//                    "SET vep.equipment_type_id = eq2.equipment_type_id " +
+//                    "WHERE vep.IsActive = 1";
 
 
             //            "ON CAST(vep.eqid AS UNSIGNED) = CAST(eq2.equipment_id AS UNSIGNED) " +
             //            "ON TRIM(LEADING '0' FROM vep.eqid) = eq2.equipment_id " +
+
+
+            String sql = "UPDATE inspected_details ins " +
+                    "JOIN equipments1 eq2 " +
+                    "SET ins.equipment_type_id = eq2.equipment_type_id " +
+                    "WHERE ins.eqid=eq2.equipment_id";
 
             int rowsAffected = jdbcTemplate.update(sql);
             System.out.println("Rows affected: " + rowsAffected);
@@ -93,8 +99,6 @@ public class DataTransferServiceImpl implements DataTransferService {
             e.printStackTrace();
         }
     }
-
-
 
 
     // correct code to insert feature_inspector and eqid
@@ -265,59 +269,254 @@ public class DataTransferServiceImpl implements DataTransferService {
         }
     }
 
+    public void insertInspectedDetailsSort(){
+        try{
+
+            //updating active and type
+//            String sql = "UPDATE inspected_details " +
+//                    "SET active = 1, type = 1 " +
+//                    "WHERE feature_inspector IS NOT NULL ";
+//                    "AND spec_range IS NOT NULL";
+
+
+//            String sql = "WITH sorted_values AS ( " +
+//                    "    SELECT eqid, ROW_NUMBER() OVER (ORDER BY eqid ASC) AS new_sort_number " +
+//                    "    FROM inspected_details " +
+//                    ") " +
+//                    "UPDATE inspected_details " +
+//                    "SET sort_number = sorted_values.new_sort_number " +
+//                    "FROM sorted_values " +
+//                    "WHERE inspected_details.eqid = sorted_values.eqid;";
+
+//            String sql = "UPDATE inspected_details AS id " +
+//                    "JOIN ( " +
+//                    "    SELECT eqid, ROW_NUMBER() OVER ( ORDER BY eqid ASC) AS new_sort_number " +
+////                    "SELECT eqid, inspected_details_id, " +
+////                    "ROW_NUMBER() OVER (PARTITION BY eqid ORDER BY inspected_details_id ASC) AS new_sort_number" +
+//                    "    FROM inspected_details " +
+//                    ") AS sorted_values " +
+//                    "ON id.eqid = sorted_values.eqid " +
+//                    "SET id.sort_number = sorted_values.new_sort_number;";
+
+            String sql = "UPDATE inspected_details AS id " +
+                    "JOIN ( " +
+                    "    SELECT inspected_details_id, eqid, " +
+                    "           ROW_NUMBER() OVER (PARTITION BY eqid ORDER BY inspected_details_id ASC) AS new_sort_number " +
+                    "    FROM inspected_details " +
+                    ") AS sorted_values " +
+                    "ON id.inspected_details_id = sorted_values.inspected_details_id " +
+                    "SET id.sort_number = sorted_values.new_sort_number;";
+
+
+
+            // DENSE_RANK() will provide 1,2,3
+//            String sql = " SET @row_number = 0; "+
+//            " SET @current_eqid = NULL;" +
+//
+//            " UPDATE inspected_details AS id " +
+//            "JOIN ( " +
+//                    "SELECT eqid, sub_id," +
+//            "@row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number,"+
+//            "@current_eqid := eqid"+
+//            "FROM inspected_details"+
+//            "ORDER BY eqid, sub_id"+
+//") AS sorted_values"+
+//            "ON id.sub_id = sorted_values.sub_id"+
+//            "SET id.sort_number = sorted_values.new_sort_number";
+
+
+            // First set the variables
+//            jdbcTemplate.execute("SET @row_number = 0;");
+//            jdbcTemplate.execute("SET @current_eqid = NULL;");
+//
+//// Then run the update query
+//            String sql = "UPDATE inspected_details AS id " +
+//                    "JOIN ( " +
+//                    "    SELECT eqid, sub_id, " +
+//                    "           @row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number, " +
+//                    "           @current_eqid := eqid " +
+//                    "    FROM inspected_details " +
+//                    "    ORDER BY eqid, sub_id " +
+//                    ") AS sorted_values " +
+//                    "ON id.sub_id = sorted_values.sub_id " +
+//                    "SET id.sort_number = sorted_values.new_sort_number;";
+//
+//            jdbcTemplate.execute(sql);
+
+            // 1. Initialize variables (run these separately)
+//            jdbcTemplate.execute("SET @row_number = 0;");
+//            jdbcTemplate.execute("SET @current_eqid = NULL;");
+//            jdbcTemplate.execute("CREATE TEMPORARY TABLE temp_sorted_values (eqid INT, sub_id INT, new_sort_number INT);");
+//
+//            String insertIntoTempTable =
+//                    "INSERT INTO temp_sorted_values (eqid, sub_id, new_sort_number) " +
+//                            "SELECT eqid, sub_id, ROW_NUMBER() OVER (PARTITION BY eqid ORDER BY sub_id) AS new_sort_number " +
+//                            "FROM inspected_details " +
+//                            "ORDER BY eqid, sub_id;";
+//
+//            jdbcTemplate.execute(insertIntoTempTable);
+
+
+//            String insertIntoTempTable =
+//                    "INSERT INTO temp_sorted_values (eqid, sub_id, new_sort_number) " +
+//                            "SELECT eqid, sub_id, COUNT(*) AS new_sort_number " +
+//                            "FROM ( " +
+//                            "    SELECT eqid, sub_id, " +
+//                            "           @row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number, " +
+//                            "           @current_eqid := eqid " +
+//                            "    FROM inspected_details, " +
+//                            "         (SELECT @row_number := 0, @current_eqid := NULL) AS vars " +
+//                            "    ORDER BY eqid, sub_id " +
+//                            ") AS derived_table " +
+//                            "GROUP BY eqid, sub_id;";
+//
+//            jdbcTemplate.execute(insertIntoTempTable);
+
+
+//            jdbcTemplate.execute("SET @row_number = 0;");
+//            jdbcTemplate.execute("SET @current_eqid = NULL;");
+
+//            String insertIntoTempTable = "INSERT INTO temp_sorted_values (eqid, sub_id, new_sort_number) " +
+//                    "SELECT eqid, sub_id, " +
+//                    "       @row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number, " +
+//                    "       @current_eqid := eqid " +
+//                    "FROM inspected_details " +
+//                    "ORDER BY eqid, sub_id;";
+//            jdbcTemplate.execute(insertIntoTempTable);
+
+
+
+// 2. Create a temporary table with calculated row numbers
+//            String createTempTable = "CREATE TEMPORARY TABLE temp_sorted_values AS " +
+//                    "SELECT eqid, sub_id, new_sort_number FROM (" +
+//                    "    SELECT eqid, sub_id, " +
+//                    "           @row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number, " +
+//                    "           @current_eqid := eqid " +
+//                    "    FROM inspected_details " +
+//                    "    ORDER BY eqid, sub_id" +
+//                    ") AS derived_table;";
+//            jdbcTemplate.execute(createTempTable);
+
+
+//            String createTempTable = "CREATE TEMPORARY TABLE temp_sorted_values AS " +
+//                    "SELECT eqid, sub_id, " +
+//                    "       @row_number := IF(@current_eqid = eqid, @row_number + 1, 1) AS new_sort_number, " +
+//                    "       @current_eqid := eqid " +
+//                    "FROM inspected_details " +
+//                    "ORDER BY eqid, sub_id;";
+//            jdbcTemplate.execute(createTempTable);
+
+// 3. Perform the update by joining with the temporary table
+//            String updateQuery = "UPDATE inspected_details AS id " +
+//                    "JOIN temp_sorted_values AS sorted_values " +
+//                    "ON id.sub_id = sorted_values.sub_id " +
+//                    "SET id.sort_number = sorted_values.new_sort_number;";
+//            jdbcTemplate.execute(updateQuery);
+
+// 4. Optionally drop the temporary table (not strictly necessary since MySQL will drop it automatically after the session)
+//            jdbcTemplate.execute("DROP TEMPORARY TABLE temp_sorted_values;");
+
+
+
+
+            int rowsAffected = jdbcTemplate.update(sql);
+            System.out.println("Rows affected: " + rowsAffected);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertCalibrationSerialNo(){
+        try{
+            //inserting equipment_serial_number
+            String sql = "insert INTO calibration_schedules (equipment_serial_number) " +
+                    "select equipment_serial_number from equipments1";
+
+            int rowsAffected = jdbcTemplate.update(sql);
+            System.out.println("Rows affected: " + rowsAffected);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+   public void updateCalibration(){
+        try{
+            // correct status and calibration_type
+                    String sql = "UPDATE calibration_schedules " +
+                    "SET status='NEW', calibration_type='Internal', next_calibration_date='2025-09-02', " +
+                            "status_updated_at='2024-02-05 03:25:48', created_by='B7052'" +
+                    "WHERE calibration_schedule_id>0";
+
+
+//           String sql= "UPDATE calibration_schedules cs "+
+//            "SET cs.calibration_schedules_logs_id = ( "+
+//                    "SELECT csl.calibration_schedule_log_id "+
+//           "FROM calibration_schedule_logs csl "+
+//            "WHERE cs.schedule_id = csl.schedule_id)";
+
+
+//            String sql = "UPDATE calibration_schedules cs " +
+//                    "join calibration_schedule_logs csl "+
+//                    "ON cs.schedule_id = csl.schedule_id" +
+//            " SET cs.calibration_schedules_logs_id=csl.calibration_schedule_log_id";
+//                    "WHERE calibration_schedule_id>0";
+
+//            correct first_issue_date
+//            String sql = "update calibration_schedules cas " +
+//                    "JOIN equipments1 eq1 ON cas.equipment_serial_number = eq1.equipment_serial_number " +
+//                    "Join vms_equipment veq ON eq1.equipment_id = veq.equipmentID "+
+//                    "SET cas.first_issue_date= veq.issuedate";
+
+
+                    int rowsAffected = jdbcTemplate.update(sql);
+            System.out.println("Rows affected: " + rowsAffected);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+    }
+
+    public void insertCalibrationLog(){
+        try{
+            //inserting equipment_serial_number
+            String sql = "insert INTO calibration_schedules_logs (calibration_schedule_id, status, created_by) " +
+                    "select calibration_schedule_id, status, created_by from calibration_schedules";
+
+            int rowsAffected = jdbcTemplate.update(sql);
+            System.out.println("Rows affected: " + rowsAffected);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+@Transactional
+    public void insertequipmentpmpic(){
+        try {
+            String selectSql = "SELECT eqid, piclist FROM vms_equipment_pmpic WHERE piclist IS NOT NULL";
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectSql);
+            List<Object[]> batchArgs = new ArrayList<>();
+            for (Map<String, Object> row : rows) {
+                String eqid = (String) row.get("eqid");
+                String picList = (String) row.get("piclist");
+                String[] piclists = picList.split(",");
+                for (String piclist : piclists) {
+                    String trimmedPiclist = piclist.trim();
+
+                    batchArgs.add(new Object[]{trimmedPiclist, eqid});
+//
+                    String insertSql = "INSERT ignore new_equipment_pmpic (piclist, eqid) VALUES (?, ?) ";
+//                            "ON DUPLICATE KEY UPDATE eqid = eqid ";
+
+                    int[] batchUpdateResult = jdbcTemplate.batchUpdate(insertSql, batchArgs);
+                    System.out.println("Total inserted rows: " + batchUpdateResult.length);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error inserting inspected_details", e);
+        }
+    }
+
 }
 
-
-
-
-
-
-
-
-
-
-
-
-//@Transactional
-//public void updateInspectedDetails() {
-//    try {
-//        String selectSql = "SELECT eqid, parameterlist FROM vms_equipment_parameter WHERE parameterlist IS NOT NULL";
-//        List<Map<String, Object>> rows = jdbcTemplate.queryForList(selectSql);
-//
-//        // Prepare a map to hold the last parameter for each eqid
-//        Map<Integer, String> parameterMap = new HashMap<>();
-//
-//        for (Map<String, Object> row : rows) {
-//            Integer eqid = (Integer) row.get("eqid");
-//            String parameterList = (String) row.get("parameterlist");
-//
-//            // Split parameterList by comma
-//            String[] parameters = parameterList.split(",");
-//
-//            // Assume the last parameter is the one you want to keep for each eqid
-//            // (or modify this logic based on your needs)
-//            for (String parameter : parameters) {
-//                String trimmedParameter = parameter.trim();
-//                parameterMap.put(eqid, trimmedParameter); // Keep only the last parameter for each eqid
-//            }
-//        }
-//
-//        // Prepare batch arguments
-//        List<Object[]> batchArgs = new ArrayList<>();
-//        String updateSql = "UPDATE inspected_details SET parameterlist = ? WHERE eqid = ?";
-//
-//        for (Map.Entry<Integer, String> entry : parameterMap.entrySet()) {
-//            batchArgs.add(new Object[]{entry.getValue(), entry.getKey()});
-//        }
-//
-//        // Execute batch update
-//        if (!batchArgs.isEmpty()) {
-//            int[] batchUpdateResult = jdbcTemplate.batchUpdate(updateSql, batchArgs);
-//            System.out.println("Total updates: " + batchUpdateResult.length);
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//        throw new RuntimeException("Error updating inspected_details", e);
-//    }
-//}
 

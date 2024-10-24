@@ -34,7 +34,7 @@ public class DataTransferController {
 //    public ResponseEntity<String> updateEquipmentType() {
     public ResponseEntity<ResponseDTO> updateEquipmentType() {
         dataTransferService.updateEquipmentTypeIds();
-        ResponseDTO response=new ResponseDTO();
+        ResponseDTO response = new ResponseDTO();
         response.setMessage("Equipment Type IDs updated successfully.");
 //        equipmentService.updateEquipmentTypeIds();
         return ResponseEntity.ok(response);
@@ -44,7 +44,7 @@ public class DataTransferController {
     @PostMapping("/insert-inspected-feature")
     public ResponseEntity<ResponseDTO> insertInspectedDetails() {
         dataTransferService.insertInspectedFeature();
-        ResponseDTO response=new ResponseDTO();
+        ResponseDTO response = new ResponseDTO();
         response.setMessage("Equipment Type IDs updated successfully.");
         return ResponseEntity.ok(response);
     }
@@ -52,7 +52,7 @@ public class DataTransferController {
     @PostMapping("/insert-inspected-spec")
     public ResponseEntity<ResponseDTO> insertInspectedSpec() {
         dataTransferService.insertInspectedSpecrange();
-        ResponseDTO response=new ResponseDTO();
+        ResponseDTO response = new ResponseDTO();
         response.setMessage("Equipment Type IDs updated successfully.");
         return ResponseEntity.ok(response);
     }
@@ -60,7 +60,7 @@ public class DataTransferController {
     @PostMapping("/insert-inspected-spec1")
     public ResponseEntity<ResponseDTO> insertInspectedSpec1() {
         dataTransferService.insertInspectedDetails();
-        ResponseDTO response=new ResponseDTO();
+        ResponseDTO response = new ResponseDTO();
         response.setMessage("Equipment Type IDs updated successfully.");
         return ResponseEntity.ok(response);
     }
@@ -68,7 +68,47 @@ public class DataTransferController {
     @PostMapping("/insert-equipment-spec1")
     public ResponseEntity<ResponseDTO> insertEquipmentSpec1() {
         dataTransferService.insertEquipmentDetails();
-        ResponseDTO response=new ResponseDTO();
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Equipment Type IDs updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-inspected-spec2")
+    public ResponseEntity<ResponseDTO> insertInspectedSpec2() {
+        dataTransferService.insertInspectedDetailsSort();
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Equipment Type IDs updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/insert-calibration-serialno")
+    public ResponseEntity<ResponseDTO> insertCalibrationSerial() {
+        dataTransferService.insertCalibrationSerialNo();
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Equipment Type IDs updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-calibration-active")
+    public ResponseEntity<ResponseDTO> insertCalibrationUpdate() {
+        dataTransferService.updateCalibration();
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Equipment Type IDs updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/insert-calibration-log")
+    public ResponseEntity<ResponseDTO> insertCalibrationlog() {
+        dataTransferService.insertCalibrationLog();
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Equipment Type IDs updated successfully.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/insert-equipment-pmpic")
+    public ResponseEntity<ResponseDTO> insertequipmentpmpic() {
+        dataTransferService.insertequipmentpmpic();
+        ResponseDTO response = new ResponseDTO();
         response.setMessage("Equipment Type IDs updated successfully.");
         return ResponseEntity.ok(response);
     }

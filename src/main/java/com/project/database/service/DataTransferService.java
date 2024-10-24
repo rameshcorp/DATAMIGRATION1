@@ -12,4 +12,9 @@ public interface DataTransferService {
     void insertInspectedSpecrange();
     void insertInspectedDetails();
     void insertEquipmentDetails();
+    void insertInspectedDetailsSort();
+    void insertCalibrationSerialNo();
+    void updateCalibration();
+    void insertCalibrationLog();
+    void insertequipmentpmpic();
 }
